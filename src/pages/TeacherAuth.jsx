@@ -8,7 +8,6 @@ import {
 import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
 import { FaUserTie, FaEnvelope, FaLock, FaChalkboardTeacher } from "react-icons/fa";
 
-/* ---------- Generate Teacher Code ---------- */
 function generateTeacherCode() {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
   let code = "TEACH-";
@@ -27,21 +26,14 @@ export default function TeacherAuth() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  /* ---------- SIGNUP ---------- */
   async function handleSignup() {
     if (!fullname.trim()) return alert("Please enter full name");
     if (!email || !password) return alert("Enter email & password");
     if (password.length < 6) return alert("Password must be at least 6 characters");
 
     setLoading(true);
-
     try {
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
       const inviteCode = generateTeacherCode();
 
@@ -54,9 +46,7 @@ export default function TeacherAuth() {
       });
 
       alert(`✅ Account created!\nYour Teacher Code: ${inviteCode}`);
-
       navigate("/teacher/qualification");
-
     } catch (err) {
       alert(err.message);
     } finally {
@@ -64,19 +54,12 @@ export default function TeacherAuth() {
     }
   }
 
-  /* ---------- LOGIN ---------- */
   async function handleLogin() {
     if (!email || !password) return alert("Enter email & password");
 
     setLoading(true);
-
     try {
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
       const snap = await getDoc(doc(db, "teachers", user.uid));
 
@@ -86,13 +69,11 @@ export default function TeacherAuth() {
       }
 
       const data = snap.data();
-
       if (data.qualificationCompleted) {
         navigate("/teacher/dashboard");
       } else {
         navigate("/teacher/qualification");
       }
-
     } catch (err) {
       alert("Login failed: " + err.message);
     } finally {
@@ -108,171 +89,298 @@ export default function TeacherAuth() {
   return (
     <div style={{
       minHeight: "100vh",
-      background: "linear-gradient(135deg, #4e73df 0%, #1cc88a 100%)",
+      background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
       display: "flex",
       justifyContent: "center",
       alignItems: "center",
-      padding: "20px"
+      padding: "20px",
+      boxSizing: "border-box"
     }}>
+      {/* Blobs */}
       <div style={{
-        background: "white",
-        padding: "50px 40px",
+        position: "fixed",
+        top: "-10%", right: "-5%",
+        width: "500px", height: "500px",
+        borderRadius: "50%",
+        background: "rgba(255,255,255,0.05)",
+        filter: "blur(80px)",
+        pointerEvents: "none"
+      }} />
+      <div style={{
+        position: "fixed",
+        bottom: "-10%", left: "-5%",
+        width: "500px", height: "500px",
+        borderRadius: "50%",
+        background: "rgba(255,255,255,0.03)",
+        filter: "blur(80px)",
+        pointerEvents: "none"
+      }} />
+
+      {/* Card */}
+      <div style={{
+        background: "rgba(255,255,255,0.97)",
+        backdropFilter: "blur(20px)",
         borderRadius: "24px",
         width: "100%",
-        maxWidth: "480px",
-        boxShadow: "0 20px 60px rgba(0,0,0,0.3)"
+        maxWidth: "440px",
+        boxShadow: "0 20px 60px rgba(0,0,0,0.3)",
+        overflow: "hidden",
+        boxSizing: "border-box"
       }}>
-        {/* HEADER */}
-        <div style={{ textAlign: "center", marginBottom: "40px" }}>
-          <div style={{
-            fontSize: 64,
-            marginBottom: 16,
-            background: "linear-gradient(135deg, #4e73df 0%, #1cc88a 100%)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent"
-          }}>
-            <FaChalkboardTeacher />
+        {/* Top gradient bar */}
+        <div style={{
+          height: "6px",
+          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+        }} />
+
+        <div style={{ padding: "40px 36px" }}>
+          {/* Header */}
+          <div style={{ textAlign: "center", marginBottom: "32px" }}>
+            <div style={{
+              width: 70, height: 70,
+              borderRadius: "20px",
+              background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              margin: "0 auto 16px",
+              boxShadow: "0 8px 20px rgba(78,115,223,0.4)"
+            }}>
+              <FaChalkboardTeacher style={{ fontSize: 32, color: "white" }} />
+            </div>
+            <h1 style={{
+              fontSize: "26px",
+              fontWeight: "700",
+              margin: "0 0 8px 0",
+              background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent"
+            }}>
+              {mode === "login" ? "Teacher Login" : "Create Teacher Account"}
+            </h1>
+            <p style={{ color: "#64748b", fontSize: "14px", margin: 0 }}>
+              {mode === "login"
+                ? "Welcome back! Manage your students."
+                : "Start teaching with AI-powered tools."}
+            </p>
           </div>
 
-          <h1 style={{
-            fontSize: "32px",
-            fontWeight: "bold",
-            marginBottom: "8px"
+          {/* Mode Toggle */}
+          <div style={{
+            display: "flex",
+            background: "#f1f5f9",
+            borderRadius: "12px",
+            padding: "4px",
+            marginBottom: "28px"
           }}>
-            {mode === "login" ? "Teacher Login" : "Create Teacher Account"}
-          </h1>
+            <button
+              onClick={() => setMode("login")}
+              style={{
+                flex: 1,
+                padding: "10px",
+                background: mode === "login"
+                  ? "linear-gradient(135deg, #4e73df 0%, #1cc88a 100%)"
+                  : "transparent",
+                color: mode === "login" ? "white" : "#64748b",
+                border: "none",
+                borderRadius: "10px",
+                cursor: "pointer",
+                fontWeight: "600",
+                fontSize: "14px",
+                transition: "all 0.3s"
+              }}
+            >
+              Login
+            </button>
+            <button
+              onClick={() => setMode("signup")}
+              style={{
+                flex: 1,
+                padding: "10px",
+                background: mode === "signup"
+                  ? "linear-gradient(135deg, #4e73df 0%, #1cc88a 100%)"
+                  : "transparent",
+                color: mode === "signup" ? "white" : "#64748b",
+                border: "none",
+                borderRadius: "10px",
+                cursor: "pointer",
+                fontWeight: "600",
+                fontSize: "14px",
+                transition: "all 0.3s"
+              }}
+            >
+              Sign Up
+            </button>
+          </div>
 
-          <p style={{ color: "#666" }}>
-            {mode === "login"
-              ? "Welcome back! Manage your students."
-              : "Start teaching with AI-powered tools."}
-          </p>
+          {/* Form */}
+          <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+
+            {mode === "signup" && (
+              <div>
+                <label style={{ fontSize: "13px", fontWeight: "600", color: "#374151", display: "block", marginBottom: "6px" }}>
+                  Full Name
+                </label>
+                <div style={{ position: "relative" }}>
+                  <FaUserTie style={{
+                    position: "absolute",
+                    left: "14px",
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    color: "#4e73df",
+                    fontSize: "15px",
+                    pointerEvents: "none"
+                  }} />
+                  <input
+                    type="text"
+                    placeholder="Enter your full name"
+                    value={fullname}
+                    onChange={(e) => setFullname(e.target.value)}
+                    style={{
+                      width: "100%",
+                      padding: "12px 14px 12px 40px",
+                      borderRadius: "10px",
+                      border: "2px solid #e2e8f0",
+                      fontSize: "15px",
+                      outline: "none",
+                      boxSizing: "border-box",
+                      transition: "border-color 0.3s",
+                      color: "#1e293b"
+                    }}
+                    onFocus={e => e.target.style.borderColor = "#4e73df"}
+                    onBlur={e => e.target.style.borderColor = "#e2e8f0"}
+                  />
+                </div>
+              </div>
+            )}
+
+            <div>
+              <label style={{ fontSize: "13px", fontWeight: "600", color: "#374151", display: "block", marginBottom: "6px" }}>
+                Email Address
+              </label>
+              <div style={{ position: "relative" }}>
+                <FaEnvelope style={{
+                  position: "absolute",
+                  left: "14px",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  color: "#4e73df",
+                  fontSize: "15px",
+                  pointerEvents: "none"
+                }} />
+                <input
+                  type="email"
+                  placeholder="Enter your email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  style={{
+                    width: "100%",
+                    padding: "12px 14px 12px 40px",
+                    borderRadius: "10px",
+                    border: "2px solid #e2e8f0",
+                    fontSize: "15px",
+                    outline: "none",
+                    boxSizing: "border-box",
+                    transition: "border-color 0.3s",
+                    color: "#1e293b"
+                  }}
+                  onFocus={e => e.target.style.borderColor = "#4e73df"}
+                  onBlur={e => e.target.style.borderColor = "#e2e8f0"}
+                />
+              </div>
+            </div>
+
+            <div>
+              <label style={{ fontSize: "13px", fontWeight: "600", color: "#374151", display: "block", marginBottom: "6px" }}>
+                Password
+              </label>
+              <div style={{ position: "relative" }}>
+                <FaLock style={{
+                  position: "absolute",
+                  left: "14px",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  color: "#4e73df",
+                  fontSize: "15px",
+                  pointerEvents: "none"
+                }} />
+                <input
+                  type="password"
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  style={{
+                    width: "100%",
+                    padding: "12px 14px 12px 40px",
+                    borderRadius: "10px",
+                    border: "2px solid #e2e8f0",
+                    fontSize: "15px",
+                    outline: "none",
+                    boxSizing: "border-box",
+                    transition: "border-color 0.3s",
+                    color: "#1e293b"
+                  }}
+                  onFocus={e => e.target.style.borderColor = "#4e73df"}
+                  onBlur={e => e.target.style.borderColor = "#e2e8f0"}
+                />
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              style={{
+                width: "100%",
+                padding: "14px",
+                background: loading
+                  ? "#94a3b8"
+                  : "linear-gradient(135deg, #4e73df 0%, #1cc88a 100%)",
+                color: "white",
+                borderRadius: "10px",
+                fontSize: "16px",
+                fontWeight: "700",
+                cursor: loading ? "not-allowed" : "pointer",
+                border: "none",
+                marginTop: "8px",
+                boxShadow: loading ? "none" : "0 8px 20px rgba(78,115,223,0.4)",
+                transition: "all 0.3s",
+                boxSizing: "border-box"
+              }}
+              onMouseEnter={e => {
+                if (!loading) {
+                  e.target.style.transform = "translateY(-2px)";
+                  e.target.style.boxShadow = "0 12px 28px rgba(78,115,223,0.5)";
+                }
+              }}
+              onMouseLeave={e => {
+                e.target.style.transform = "translateY(0)";
+                e.target.style.boxShadow = "0 8px 20px rgba(78,115,223,0.4)";
+              }}
+            >
+              {loading ? "Please wait..." : mode === "login" ? "Login to Dashboard" : "Create Account"}
+            </button>
+          </form>
+
+          {/* Footer */}
+          <div style={{ textAlign: "center", marginTop: "20px", fontSize: "14px", color: "#64748b" }}>
+            {mode === "login" ? (
+              <p style={{ margin: 0 }}>
+                Don't have an account?{" "}
+                <span onClick={() => setMode("signup")} style={{ color: "#4e73df", fontWeight: "600", cursor: "pointer" }}>
+                  Sign up here
+                </span>
+              </p>
+            ) : (
+              <p style={{ margin: 0 }}>
+                Already have an account?{" "}
+                <span onClick={() => setMode("login")} style={{ color: "#4e73df", fontWeight: "600", cursor: "pointer" }}>
+                  Login here
+                </span>
+              </p>
+            )}
+          </div>
         </div>
-
-        {/* MODE SWITCH */}
-        <div style={{
-          display: "flex",
-          gap: "12px",
-          marginBottom: "32px",
-          background: "#f0f0f0",
-          padding: "6px",
-          borderRadius: "12px"
-        }}>
-          <button
-            onClick={() => setMode("login")}
-            style={toggleStyle(mode === "login")}
-          >
-            Login
-          </button>
-
-          <button
-            onClick={() => setMode("signup")}
-            style={toggleStyle(mode === "signup")}
-          >
-            Sign Up
-          </button>
-        </div>
-
-        {/* FORM */}
-        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-
-          {mode === "signup" && (
-            <InputField
-              icon={<FaUserTie />}
-              placeholder="Full Name"
-              value={fullname}
-              onChange={setFullname}
-            />
-          )}
-
-          <InputField
-            icon={<FaEnvelope />}
-            placeholder="Email Address"
-            value={email}
-            onChange={setEmail}
-            type="email"
-          />
-
-          <InputField
-            icon={<FaLock />}
-            placeholder="Password"
-            value={password}
-            onChange={setPassword}
-            type="password"
-          />
-
-          <button
-            type="submit"
-            disabled={loading}
-            style={{
-              padding: "18px",
-              background: loading
-                ? "#ccc"
-                : "linear-gradient(135deg, #4e73df 0%, #1cc88a 100%)",
-              color: "white",
-              borderRadius: "12px",
-              fontSize: "17px",
-              fontWeight: "bold",
-              border: "none",
-              cursor: loading ? "not-allowed" : "pointer",
-              transition: "all 0.3s"
-            }}
-          >
-            {loading
-              ? "Please wait..."
-              : mode === "login"
-              ? "Login to Dashboard"
-              : "Create Account"}
-          </button>
-        </form>
       </div>
     </div>
   );
-}
-
-/* ---------- Reusable Input ---------- */
-function InputField({ icon, placeholder, value, onChange, type = "text" }) {
-  return (
-    <div style={{ position: "relative" }}>
-      <div style={{
-        position: "absolute",
-        left: "16px",
-        top: "50%",
-        transform: "translateY(-50%)",
-        color: "#999"
-      }}>
-        {icon}
-      </div>
-      <input
-        type={type}
-        placeholder={placeholder}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        style={{
-          width: "100%",
-          padding: "16px 16px 16px 48px",
-          borderRadius: "12px",
-          border: "2px solid #e0e0e0",
-          fontSize: "16px",
-          outline: "none"
-        }}
-      />
-    </div>
-  );
-}
-
-/* ---------- Toggle Style ---------- */
-function toggleStyle(active) {
-  return {
-    flex: 1,
-    padding: "12px",
-    background: active
-      ? "linear-gradient(135deg, #4e73df 0%, #1cc88a 100%)"
-      : "transparent",
-    color: active ? "white" : "#666",
-    border: "none",
-    borderRadius: "8px",
-    cursor: "pointer",
-    fontWeight: "600"
-  };
 }
