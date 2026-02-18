@@ -18,7 +18,7 @@
 
 ## 🖥️ Live Demo
 
-> Add your deployed link here
+> ai-learning-git-main-prathamesh-gorads-projects.vercel.app
 
 ---
 
