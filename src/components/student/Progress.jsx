@@ -55,7 +55,7 @@ export default function Progress() {
 
       try {
         const res = await fetch(
-          `http://localhost:5000/api/progress/summary/${user.uid}`
+          `${import.meta.env.VITE_API_URL}/api/progress/summary/${user.uid}`
         );
         
         const data = await res.json();

@@ -40,7 +40,7 @@ export default function Quiz() {
 
     async function loadQuiz() {
       try {
-        const res = await fetch("http://localhost:5000/api/ai-tutor", {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/ai-tutor`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -86,7 +86,7 @@ export default function Quiz() {
     if (!user) return;
 
     try {
-      await fetch("http://localhost:5000/api/log-quiz", {
+      await fetch(`${import.meta.env.VITE_API_URL}/api/log-quiz`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

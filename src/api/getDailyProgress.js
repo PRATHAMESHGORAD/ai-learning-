@@ -1,6 +1,6 @@
 export async function getDailyProgress(userId) {
   const res = await fetch(
-    `http://localhost:5000/api/progress/daily/${userId}`
+    `${import.meta.env.VITE_API_URL}/api/progress/daily/${userId}`
   );
 
   if (!res.ok) {

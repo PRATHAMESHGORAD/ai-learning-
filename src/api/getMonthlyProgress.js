@@ -1,6 +1,6 @@
 export async function getMonthlyProgress(uid) {
   const res = await fetch(
-    `http://localhost:5000/api/progress/monthly/${uid}`
+    `${import.meta.env.VITE_API_URL}/api/progress/monthly/${uid}`
   );
 
   if (!res.ok) {

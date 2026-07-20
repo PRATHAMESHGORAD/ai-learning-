@@ -66,7 +66,7 @@ export default function StudentSettings() {
         connectedAt: new Date()
       });
 
-      const res = await fetch('http://localhost:5000/api/student/connect-teacher', {
+     const res = await fetch(`${import.meta.env.VITE_API_URL}/api/student/connect-teacher`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
