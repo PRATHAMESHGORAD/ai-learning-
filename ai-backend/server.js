@@ -194,9 +194,10 @@ app.post("/api/ai-tutor", async (req, res) => {
       }
 
       const completion = await groq.chat.completions.create({
-        model: "llama-3.1-8b-instant",
+        model: "openai/gpt-oss-20b",
         temperature: 0.3,
-        max_tokens: 300,
+        max_tokens: 1500,
+        reasoning_effort: "low",
         messages: [
           {
             role: "system",
@@ -252,9 +253,10 @@ Keep explanations simple but structured.`,
       const quizSeed = Math.floor(Math.random() * 1_000_000);
 
       const completion = await groq.chat.completions.create({
-        model: "llama-3.1-8b-instant",
+        model: "openai/gpt-oss-20b",
         temperature: 0.7,
-        max_tokens: 600,
+        max_tokens: 2000,
+        reasoning_effort: "low",
         messages: [
           {
             role: "system",
@@ -329,11 +331,29 @@ app.post("/api/student/connect-teacher", async (req, res) => {
   }
 });
 
-/* ─── OTHER ROUTES ───────────────────────────────────────────────────────── */
+/* ─── OTHER ROUTES ─── */
 
 app.use("/api/teacher", teacherRoutes);
 app.use("/api/study-planner", studyPlannerRoutes);
 
-app.listen(5000, () => {
-  console.log("✅ Groq AI Backend running at http://localhost:5000");
+/* ─── HEALTH CHECK ─── */
+
+app.get("/health", (req, res) => res.json({ status: "ok" }));
+
+/* ─── START SERVER ─── */
+
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () => {
+  console.log(`✅ Groq AI Backend running on port ${PORT}`);
 });
+
+/* ─── RENDER KEEP-ALIVE ─── */
+
+if (process.env.RENDER) {
+  setInterval(() => {
+    fetch("https://ai-learning-xfl0.onrender.com/health")
+      .then(() => console.log("Keep-alive ping sent"))
+      .catch(() => {});
+  }, 14 * 60 * 1000);
+}
