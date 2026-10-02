@@ -83,7 +83,7 @@ app.get("/api/progress/summary/:userId", async (req, res) => {
 });
 
 app.post("/api/progress/time", async (req, res) => {
-  const { userId, practiceSeconds } = req.body;
+  const { userId, practiceSeconds } = req.body ?? {};
   if (!userId || !practiceSeconds) {
     return res.status(400).json({ error: "Invalid payload" });
   }
